@@ -18,7 +18,7 @@ class Ticket extends Model {
     }
 
     operador(){
-        return this.belongsTo('App/Models/Operador');
+        return this.belongsTo('App/Models/Operador', 'operador_responsavel');
     }
 
     cidade(){

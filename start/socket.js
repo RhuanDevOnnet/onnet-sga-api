@@ -38,4 +38,12 @@ io.on("connection", function (socket) {
     
     io.to(user.ticket).emit("new message", { data: "duhsaudaih" });
   });
+
+  socket.on('ticketChanges', (msg) => {
+
+    console.log('teve mudança ')
+    
+    io.emit('ticketHasChanged');
+    
+  });
 });

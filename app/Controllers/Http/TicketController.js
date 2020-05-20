@@ -50,18 +50,20 @@ class TicketController {
   async indexTicketBySector({ request, response, params }) {
     const sectorId = params.id;
 
+
     try {
       const tickets = await Ticket.query()
         .with("user")
         .with("setor")
-        .with("operador")
+        .with("cidade")
+        .with("operador.user")
         .with("ticketStatus")
         .where("setor_id", "=", sectorId)
         .orderBy("id", "desc")
         .fetch();
 
       if (!tickets) {
-        return response.status(400).json({
+        return response.status(400).  json({
           message: "Não foi encontrado nenhum ticket para esse setor ",
         });
       }
