@@ -34,6 +34,16 @@ class ModeloController {
     return modelo;
   }
 
+  async indexByMarcaExclusive({request, response, params}){
+    const modelos = await Modelo.query().where('marca_id', '=', params.id).where('exclusivo_mobile' , true).fetch();
+    
+    if(!modelos){
+      return response.status(400).json({ message: 'Não foi encontrado nenhum modelo'});
+    }
+
+    return response.status(200).json(modelos);
+  }
+
   async indexOnlyEquipament({ request, response, view, params}){
     const modelo = await Modelo.query().where('exclusivo_mobile', false).fetch();
     return modelo;

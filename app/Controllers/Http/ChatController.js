@@ -2,6 +2,7 @@ const Ticket = use("App/models/Ticket");
 const TicketAtendente = use("App/models/TicketAtendente");
 
 class ChatController {
+
   async initOperatorChat({ request, response, view, params }) {
     const operador = request.body;
 
@@ -79,7 +80,7 @@ class ChatController {
       }
 
       ticket.resolvido = true;
-      ticket.ticket_status_id = 8;
+      ticket.ticket_status_id = 4;
       await ticket.save();
       return response
         .status(200)

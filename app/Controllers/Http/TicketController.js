@@ -59,6 +59,7 @@ class TicketController {
         .with("operador.user")
         .with("ticketStatus")
         .where("setor_id", "=", sectorId)
+        .where("resolvido", false)      
         .orderBy("id", "desc")
         .fetch();
 

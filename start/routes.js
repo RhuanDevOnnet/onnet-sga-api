@@ -181,7 +181,7 @@ Route.group(() => {
 
 // Route: Cargo
 Route.group(() => {
-  Route.resource('cargo', 'CargoController').apiOnly()
+  Route.resource('', 'CargoController').apiOnly()
 })
   .prefix('cargo')
   .middleware('auth')
@@ -190,6 +190,7 @@ Route.group(() => {
 Route.group(() => {
   Route.resource('', 'ModeloController').apiOnly()
   Route.get('/findByMarca/:id', 'ModeloController.indexByMarca')
+  Route.get('/findByMarca/exclusive/:id', 'ModeloController.indexByMarcaExclusive')
   Route.get('/find/only-equipaments', 'ModeloController.indexOnlyEquipament')
 })
   .prefix('modelo')
@@ -204,21 +205,21 @@ Route.group(() => {
 
 // Route: Phone Colaborador
 Route.group(() => {
-  Route.resource('phoneColab', 'PhoneColaboradorController').apiOnly()
+  Route.resource('', 'PhoneColaboradorController').apiOnly()
   Route.get(
-    'phoneColab/index/all-phone-in-use',
+    '/index/all-phone-in-use',
     'PhoneColaboradorController.indexAllPhoneInUse',
   )
   Route.get(
-    'phoneColab/find/AllReturnedPhone',
+    '/find/AllReturnedPhone',
     'PhoneColaboradorController.indexAllPhoneReturned',
   )
   Route.get(
-    'phoneColab/find/:colab',
+    '/find/:colab',
     'PhoneColaboradorController.indexByColaboratorPhones',
   )
   Route.put(
-    'phoneColab/devolucao/:colab',
+    '/devolucao/:colab',
     'PhoneColaboradorController.devolucao',
   )
 })

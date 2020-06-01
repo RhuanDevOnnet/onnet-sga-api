@@ -1,48 +1,61 @@
-const Ticket = use("App/Models/Ticket");
+const Ticket = use('App/Models/Ticket')
 
 class TicketManagerController {
-  async TicketSectorChange({ request, params, response, view }) {
-    const { id } = params;
-    const { sectorId } = request.body;
-
-    console.log(sectorId);
+  // Realiza a troca de setor do ticket
+  async TicketSectorChange({ request, params, response, auth, view }) {
+    const { id } = params
+    const { sectorId } = request.body
 
     try {
-      const ticket = await Ticket.findOrFail(id);
+      const ticket = await Ticket.findOrFail(id)
 
       if (!ticket) {
         return response
           .status(400)
-          .json({ message: "Não foi encontrado nenhum ticket com esse ID " });
+          .json({ message: 'Não foi encontrado nenhum ticket com esse ID ' })
       }
 
-      ticket.setor_id = sectorId;
-      await ticket.save();
-      return response.status(200).json(ticket);
+      if (ticket.operador_responsavel != auth.user.id) {
+        return response
+          .status(400)
+          .json({
+            message:  
+              'Somente o usuário responsavel pelo ticket que pode estar transferindo o ticket',
+          });
+      }
+      console.log(auth.user);
+
+      ticket.setor_id = sectorId
+      await ticket.save()
+      return response.status(200).json(ticket)
     } catch (err) {
-      return response.status(400).json({ message: "Ocorreu um erro: " + err });
+      return response.status(400).json({ message: 'Ocorreu um erro: ' + err })
     }
   }
 
-  async leaveTicket({ request, response, params }) {
-    const { id } = params;
+  async leaveTicket({ request, auth, response, params }) {
+    const { id } = params
 
     try {
-      const ticket = await Ticket.findOrFail(id);
+      const ticket = await Ticket.findOrFail(id)
 
       if (!ticket) {
         return response
           .status(400)
-          .json({ message: "Não foi encontrado nenhum ticket com esse ID" });
+          .json({ message: 'Não foi encontrado nenhum ticket com esse ID' })
       }
 
-      ticket.operador_responsavel = null;
-      await ticket.save();
-      return response.status(200).json(ticket);
+      if(ticket.operador_responsavel != auth.user.id){
+        return response.status(400).json({ message : 'Somente o usuário responsavel que pode soltar o ticket'});
+      }
+
+      ticket.operador_responsavel = null
+      await ticket.save()
+      return response.status(200).json(ticket)
     } catch (err) {
-      return response.status(400).json({ message: "Ocorreu um erro : " + err });
+      return response.status(400).json({ message: 'Ocorreu um erro : ' + err })
     }
   }
 }
 
-module.exports = TicketManagerController;
+module.exports = TicketManagerController
