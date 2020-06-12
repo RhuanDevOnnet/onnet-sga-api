@@ -44,7 +44,7 @@ class AuthController {
     const { id } = params
 
     try {
-      const user = await User.query().where('id', id).with('permissao').fetch();
+      const user = await User.query().where('id', id).with('permissao').fetch()
 
       if (!user) {
         return response

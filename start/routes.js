@@ -74,6 +74,7 @@ Route.group(() => {
 // Route: Setor
 Route.group(() => {
   Route.resource('', 'SetorController').apiOnly()
+  Route.put('/cargosChange/:id', 'SetorController.updateCargos');
 })
   .prefix('setor')
   .middleware('auth')
@@ -210,6 +211,7 @@ Route.group(() => {
     '/index/all-phone-in-use',
     'PhoneColaboradorController.indexAllPhoneInUse',
   )
+  Route.get('/filter/historic', 'PhoneColaboradorController.indexWithFilter')
   Route.get(
     '/find/AllReturnedPhone',
     'PhoneColaboradorController.indexAllPhoneReturned',

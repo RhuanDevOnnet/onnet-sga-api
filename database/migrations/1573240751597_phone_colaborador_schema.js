@@ -27,7 +27,6 @@ class PhoneColaboradorSchema extends Schema {
       .index('collaborators_id')
       table.integer('chip_id')
       .unsigned()
-      .notNullable()
       .references('id').inTable('chips')
       .onUpdate('CASCADE')
       .onDelete('RESTRICT')

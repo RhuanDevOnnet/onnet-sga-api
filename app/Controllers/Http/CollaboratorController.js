@@ -16,15 +16,26 @@ class CollaboratorController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-    const collaborators = await Collaborator.query().with('cargo').with('setor').with('email').with('empresa').fetch();
+  async index({ request, response, view }) {
+    const collaborators = await Collaborator.query()
+      .with('cargo')
+      .with('setor')
+      .with('email')
+      .with('empresa')
+      .fetch()
 
-    return collaborators;
+    return collaborators
   }
 
-  async indexByCity({ request, response, view, params}){
-    const colaboradores = await Collaborator.query().with('cargo').with('setor').with('email').with('empresa').where('empresa_id', '=', params.id ).fetch();
-    return colaboradores;
+  async indexByCity({ request, response, view, params }) {
+    const colaboradores = await Collaborator.query()
+      .with('cargo')
+      .with('setor')
+      .with('email')
+      .with('empresa')
+      .where('empresa_id', '=', params.id)
+      .fetch()
+    return colaboradores
   }
 
   /**
@@ -37,7 +48,6 @@ class CollaboratorController {
    * @param {View} ctx.view
    */
 
-
   /**
    * Create/save a new collaborator.
    * POST collaborators
@@ -46,17 +56,19 @@ class CollaboratorController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request , auth, response }) {
-    const data = request.body;
-    
-    const collaborator = await Collaborator.create({ 'usuario_criacao' : auth.user.username , ...data });
+  async store({ request, auth, response }) {
+    const data = request.body
 
-    const userEmail =  await Email.findOrFail(data.email_id);
-    userEmail.em_uso = true;
-    await userEmail.save();
+    const collaborator = await Collaborator.create({
+      usuario_criacao: auth.user.username,
+      ...data,
+    })
 
-    
-    return collaborator;
+    const userEmail = await Email.findOrFail(data.email_id)
+    userEmail.em_uso = true
+    await userEmail.save()
+
+    return collaborator
   }
 
   /**
@@ -68,9 +80,9 @@ class CollaboratorController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
-    const collaborator = await Collaborator.findOrFail(params.id);
-    return collaborator;
+  async show({ params, request, response, view }) {
+    const collaborator = await Collaborator.findOrFail(params.id)
+    return collaborator
   }
 
   /**
@@ -83,7 +95,6 @@ class CollaboratorController {
    * @param {View} ctx.view
    */
 
-
   /**
    * Update collaborator details.
    * PUT or PATCH collaborators/:id
@@ -92,13 +103,46 @@ class CollaboratorController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
-    const data = request.body;
-    const collaborator = await Collaborator.findOrFail(params.id);
+  async update({ params, request, response }) {
+    const data = request.body
+    const collaborator = await Collaborator.findOrFail(params.id)
 
-    collaborator.merge(data);
-    await collaborator.save();
-    return collaborator;
+    try {
+      if (collaborator.email_id != data.email_id) {
+        const email = await Email.findOrFail(collaborator.email_id)
+        if (!email) {
+          return response
+            .status(400)
+            .json({ message: 'Não foi encontrado este email.' })
+        }
+        email.em_uso = false
+        await email.save()
+      }
+
+      collaborator.merge(data)
+      await collaborator.save()
+
+      if (collaborator.email_id != data.email_id) {
+        const newEmail = await Email.findOrFail(collaborator.email_id)
+
+        if (!newEmail) {
+          return response
+            .status(404)
+            .json({ message: 'Não foi encontrado o email.' })
+        }
+
+        newEmail.em_uso = true
+        newEmail.save()
+      }
+
+      return response.status(200).json(collaborator);
+    } catch (err) {
+      return response.status(400).json({
+        message:
+          'Ocorreu um erro ao tentar atualizar os dados do colaborador: ',
+        err,
+      })
+    }
   }
 
   /**
@@ -109,9 +153,9 @@ class CollaboratorController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
-    const collaborator = await Collaborator.findOrFail(params.id);
-    await collaborator.delete();
+  async destroy({ params, request, response }) {
+    const collaborator = await Collaborator.findOrFail(params.id)
+    await collaborator.delete()
   }
 }
 

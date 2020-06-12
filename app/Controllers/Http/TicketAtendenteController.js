@@ -44,7 +44,7 @@ class TicketAtendenteController {
 
     if(_operatorId == null || _operatorId == ''){
       await Ticket.query().where('id', ticketid).update({ ticket_status_id : 2 });
-    } else {
+    } else {  
       await Ticket.query().where('id', ticketid).update({ ticket_status_id : 3 });
     }
 

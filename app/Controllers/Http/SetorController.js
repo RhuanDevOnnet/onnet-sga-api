@@ -4,101 +4,92 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
-
-const Setor = use('App/Models/Setor');
+const Setor = use('App/Models/Setor')
 class SetorController {
-  /**
-   * Show a list of all setors.
-   * GET setors
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
-    const setores = await Setor.all();
+  async index({ request, response, view }) {
+    const setores = await Setor.query().with('cargo').fetch()
     return setores
   }
 
-  /**
-   * Render a form to be used for creating a new setor.
-   * GET setors/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  async store({ request, auth, response }) {
+    const { cargos, nome, supervisor } = request.body
 
+    try {
+      const setor = await Setor.create({
+        usuario_criacao: auth.user.username,
+        nome,
+        supervisor,
+      })
 
-  /**
-   * Create/save a new setor.
-   * POST setors
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, auth, response }) {
-    const data = request.body;
-    const setor = await Setor.create({ 'usuario_criacao': auth.user.username , ...data});
-    return setor;
+      if (cargos && cargos.length > 0) {
+        await setor.cargo().attach(cargos)
+        await setor.load('cargo')
+      }
+
+      return setor
+    } catch (err) {
+      console.log(err)
+      return response
+        .status(400)
+        .json({ message: 'Ocorreu um erro ao tentar salvar o setor' })
+    }
   }
 
-  /**
-   * Display a single setor.
-   * GET setors/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-    const setor = await Setor.findOrFail(params.id);
+  async show({ params, request, response, view }) {
+    try {
+      const setor = await Setor.query()
+        .where('id', params.id)
+        .with('cargo')
+        .fetch()
+      if (!setor) {
+        return response
+          .status(400)
+          .json({ message: 'Não foi encontrado setor com esse id ' })
+      }
+      return response.status(200).json(setor)
+    } catch (err) {
+      return response
+        .status(400)
+        .json({ message: 'Ocorreu um erro ao procurar pelo setor: ', err })
+    }
+  }
+
+  async update({ params, request, response }) {
+    const { cargos, ...data } = request.body
+
+    const setor = await Setor.findOrFail(params.id)
+
+    setor.merge(data)
+    setor.save()
+
+    if (cargos && cargos.length > 0) {
+      await setor.cargo().sync(cargos)
+      await setor.load('cargo')
+    }
     return setor
   }
 
-  /**
-   * Render a form to update an existing setor.
-   * GET setors/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  async updateCargos({ params, request, response }) {
+    const { cargos } = request.body
+    const setor = await Setor.findOrFail(params.id)
 
-
-  /**
-   * Update setor details.
-   * PUT or PATCH setors/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-    const setor = await Setor.findOrFail(params.id);
-    const data = request.body;
-
-    setor.merge(data);
-    setor.save();
-    return setor;
+    try {
+      if (cargos && cargos.length > 0) {
+        await setor.cargo().sync(cargos)
+        await setor.load('cargo')
+      }
+      return response.status(200).json(setor)
+    } catch (err) {
+      return response.status(400).json({
+        message: 'Ocorreu um erro ao mudar cargos deste setor : ',
+        err,
+      })
+    }
   }
 
-  /**
-   * Delete a setor with id.
-   * DELETE setors/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
-    const setor = await Setor.findOrFail(params.id);
-    await setor.delete();
+  async destroy({ params, request, response }) {
+    const setor = await Setor.findOrFail(params.id)
+    await setor.delete()
   }
 }
 
