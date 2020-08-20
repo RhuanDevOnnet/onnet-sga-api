@@ -79,15 +79,16 @@ class TicketController {
 
   async store({ request, auth, response }) {
     const data = request.body;
+
     data.resolvido = false;
-    // data.ticket_status_id = 1;
     data.user_id = auth.user.id;
 
     const ticket = await Ticket.create({
       "usuario_criacao ": auth.user.username,
       ...data,
     });
-    return ticket;
+
+    return response.status(201).json(ticket);
   }
 
   async show({ params, request, response, view }) {

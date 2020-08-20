@@ -4,6 +4,16 @@ const TicketChat = use('App/models/TicketAtendente');
 const Ticket = use('App/Models/Ticket');
 const Helpers = use('Helpers');
 
+async function handlerTicketStatus(ticketId, operatorSenderId) {
+  const ticket = await Ticket.findOrFail(ticketId);
+
+  if (ticket.operador_responsavel) {
+    if (operatorSenderId)
+      await Ticket.query().where('id', ticketId).update({ ticket_status_id: 3 });
+    else
+      await Ticket.query().where('id', ticketId).update({ ticket_status_id: 2 });
+  }
+}
 
 class TicketAtendenteController {
 
@@ -14,7 +24,7 @@ class TicketAtendenteController {
 
   async indexByTicketId({ request, response, view, params }) {
     const chats = await TicketChat.query().with('user').with('ticket').where('ticket_id', params.id).fetch();
-    return chats; 
+    return chats;
   }
 
   async indexByMonth({ request, response, view, params }) {
@@ -42,12 +52,6 @@ class TicketAtendenteController {
 
     let imageUrl = "";
 
-    if(_operatorId == null || _operatorId == ''){
-      await Ticket.query().where('id', ticketid).update({ ticket_status_id : 2 });
-    } else {  
-      await Ticket.query().where('id', ticketid).update({ ticket_status_id : 3 });
-    }
-
     const image = request.file('picture')
 
     if (image != null) {
@@ -61,8 +65,10 @@ class TicketAtendenteController {
     }
 
     const chatData = await TicketChat.create({ operador_id: _operatorId, ticket_id: ticketid, mensagem: _mensagem, imagem: imageUrl, user_id: auth.user.id });
-    return chatData;
 
+    handlerTicketStatus(ticketid, _operatorId);
+
+    return chatData;
   }
 
   async show({ params, request, response, view }) {
