@@ -15,7 +15,7 @@ class TicketManagerController {
           .json({ message: 'Não foi encontrado nenhum ticket com esse ID ' })
       }
 
-      if (ticket.operador_responsavel != auth.user.id) {
+      if (ticket.operador.user_id != auth.user.id) {
         return response
           .status(400)
           .json({
@@ -45,7 +45,7 @@ class TicketManagerController {
           .json({ message: 'Não foi encontrado nenhum ticket com esse ID' })
       }
 
-      if(ticket.operador_responsavel != auth.user.id){
+      if(ticket.operador.user_id != auth.user.id){
         return response.status(400).json({ message : 'Somente o usuário responsavel que pode soltar o ticket'});
       }
 
