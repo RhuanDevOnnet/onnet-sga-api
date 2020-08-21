@@ -7,23 +7,23 @@ class TicketManagerController {
     const { sectorId } = request.body
 
     try {
-      const ticket = await Ticket.findOrFail(id)
+      const ticket = await Ticket.findOrFail(id);
 
       if (!ticket) {
         return response
           .status(400)
-          .json({ message: 'Não foi encontrado nenhum ticket com esse ID ' })
+          .json({ message: 'Não foi encontrado nenhum ticket com esse ID' })
       }
 
-      if (ticket.operador.user_id != auth.user.id) {
-        return response
-          .status(400)
-          .json({
-            message:  
-              'Somente o usuário responsavel pelo ticket que pode estar transferindo o ticket',
-          });
+      const ticketUser = await Ticket.query()
+        .select('operadors.user_id')
+        .innerJoin('operadors', 'tickets.operador_responsavel', 'operadors.id')
+        .where('tickets.id', id).first()
+
+      if (ticketUser.user_id != auth.user.id) {
+        return response.status(400)
+          .json({ message: 'Somente o usuário responsavel pode transferir o ticket' });
       }
-      console.log(auth.user);
 
       ticket.setor_id = sectorId
       await ticket.save()
@@ -34,10 +34,10 @@ class TicketManagerController {
   }
 
   async leaveTicket({ request, auth, response, params }) {
-    const { id } = params
+    const { id } = params;
 
     try {
-      const ticket = await Ticket.findOrFail(id)
+      const ticket = await Ticket.findOrFail(id);
 
       if (!ticket) {
         return response
@@ -45,10 +45,13 @@ class TicketManagerController {
           .json({ message: 'Não foi encontrado nenhum ticket com esse ID' })
       }
 
-      console.log(ticket)
+      const ticketUser = await Ticket.query()
+        .select('operadors.user_id')
+        .innerJoin('operadors', 'tickets.operador_responsavel', 'operadors.id')
+        .where('tickets.id', id).first()
 
-      if(ticket.operador.user_id != auth.user.id){
-        return response.status(400).json({ message : 'Somente o usuário responsavel que pode soltar o ticket'});
+      if (ticketUser.user_id != auth.user.id) {
+        return response.status(400).json({ message: 'Somente o usuário responsavel pode soltar o ticket' });
       }
 
       ticket.operador_responsavel = null
