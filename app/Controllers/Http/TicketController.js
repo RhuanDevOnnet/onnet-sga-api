@@ -59,12 +59,12 @@ class TicketController {
         .with("operador.user")
         .with("ticketStatus")
         .where("setor_id", "=", sectorId)
-        .where("resolvido", false)      
+        .where("resolvido", false)
         .orderBy("id", "desc")
         .fetch();
 
       if (!tickets) {
-        return response.status(400).  json({
+        return response.status(400).json({
           message: "Não foi encontrado nenhum ticket para esse setor ",
         });
       }
@@ -92,7 +92,7 @@ class TicketController {
   }
 
   async show({ params, request, response, view }) {
-    const ticket = await Ticket.query().where('id' , params.id).with('anexo').fetch();
+    const ticket = await Ticket.query().where('id', params.id).with('anexo').fetch();
     return ticket;
   }
 
@@ -106,12 +106,14 @@ class TicketController {
         .with("cidade")
         .with("anexo")
         .where("id", params.id)
-        .fetch();
+        .first();
+
       if (!ticket) {
         return response
           .status(400)
           .json({ message: "Não há nenhum registro desse ticket " });
       }
+      
       return response.status(200).send(ticket);
     } catch (err) {
       console.log(err);
