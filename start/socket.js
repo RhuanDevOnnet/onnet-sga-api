@@ -31,14 +31,10 @@ io.on("connection", function (socket) {
     io.to(user.ticket).emit("newMessage", { data: msg });
   });
 
-  socket.on('ticketChanges', () => {
-    io.emit('ticketHasChanged');
-  });
-
-  // Finish ticket for all the users room
-  socket.on('finishTicket', () => {
+  // Change ticket for all the users room
+  socket.on('ticketChanged', () => {
     const user = getCurrentUser(socket.id);
 
-    io.to(user.ticket).emit("ticketHasFinished", {})
-  })
+    io.to(user.ticket).emit("ticketHasChanged", {})
+  });
 });
