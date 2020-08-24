@@ -82,7 +82,7 @@ class UserController {
                 return response.status(400).json({ message: "Usuário não encontrado"});
             }
     
-            if(permissions && permissions.length > 0){
+            if(permissions.length >= 0){
                 await user.permissao().sync(permissions);
                 await user.load('permissao');
             }

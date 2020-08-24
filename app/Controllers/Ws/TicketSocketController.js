@@ -1,24 +1,27 @@
+const users = [];
 
-const rooms = [];
+// Join user to chat
+function joinUser(ticketId, userId) {
+  const user = { ticketId, userId };
 
-// Join user to room
-function roomJoin(idTicket, idUser) {
-  const room = { idTicket, idUser };
+  if (!users.includes(user))
+    users.push(user);
 
-  if (rooms.includes(room))
+
+  return user;
+}
+
+// Get current user
+function getRoom(ticketId) {
+  const room = users.find(room => room.ticketId == ticketId);
+
+  if (!room)
     return null;
-
-  rooms.push(room);
 
   return room;
 }
 
-// Get current room
-function getCurrentRoom(idTicket, idUser) {
-  return rooms.find(room => room.idTicket === idTicket && room.idUser === idUser);
-}
-
 module.exports = {
-  roomJoin,
-  getCurrentRoom
-}
+  joinUser,
+  getRoom
+} 

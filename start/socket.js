@@ -1,35 +1,39 @@
 const server = use("Server");
 const io = use("socket.io")(server.getInstance());
 
-const { userJoin, getCurrentUser } = use(
-  "./../app/Controllers/Ws/TicketSocketController"
-);
+const { joinUser, getRoom } = use("./../app/Controllers/Ws/TicketSocketController");
 
 io.on("connection", function (socket) {
-  socket.on("joinTicket", ({ idTicket, idUser }) => {
 
-    if (!idTicket || !idUser)
+  // When join on chat ticket
+  socket.on("joinTicket", ({ ticketId, userId }) => {
+    if (!ticketId || !userId) {
       return;
+    }
 
-    const room = roomJoin(idTicket, idUser);
+    const userRoom = joinUser(ticketId, userId);
 
-    if (room != null)
-      socket.join(room.ticket);
+    if (userRoom)
+      socket.join(userRoom);
   });
 
   // Listen for chatMessages
-  socket.on("chatMessages", ({ idTicket, message }) => {
-    const room = getCurrentRoom(idTicket);
+  socket.on("chatMessages", ({ ticketId, message }) => {
+    const usersRoom = getRoom(ticketId);
 
-    if (room)
-      io.to(room.idTicket).emit("newMessage", message);
+    if (usersRoom)
+      io.to(usersRoom).emit("newMessage", message);
   });
 
-  // Change ticket for all the users room
-  socket.on('ticketChanged', (idTicket) => {
-    const room = getCurrentRoom(idTicket);
+  socket.on('ticketChanged', ({ ticketId }) => {
+    const usersRoom = getRoom(ticketId);
 
-    if (room)
-      io.to(room.idTicket).emit("ticketHasChanged");
+    console.log(usersRoom);
+
+    if (usersRoom) {
+      io.to(usersRoom).emit('ticketHasChanged');
+
+      socket.leave(usersRoom);
+    }
   });
 });
