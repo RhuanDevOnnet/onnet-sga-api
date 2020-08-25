@@ -1,6 +1,5 @@
 const users = [];
 
-// Join user to chat
 function joinUser(ticketId, userId) {
   const user = { ticketId, userId };
 
@@ -11,7 +10,6 @@ function joinUser(ticketId, userId) {
   return user;
 }
 
-// Get current user
 function getRoom(ticketId) {
   const room = users.find(room => room.ticketId == ticketId);
 

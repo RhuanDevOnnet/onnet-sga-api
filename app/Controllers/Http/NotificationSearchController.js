@@ -8,11 +8,21 @@ class NotificationSearchController {
 
         try {
             const notification = await Notification.query()
-                .with('user')
-                .with('operador')
-                .with('ticket')
-                .where('user_id', user_id)
-                .orderBy('id', 'desc')
+                .select(
+                    "notifications.id",
+                    "notifications.ticket_id",
+                    "notifications.user_id",
+                    "notifications.operador_id",
+                    "notifications.text",
+                    "notifications.visited",
+                    "notifications.data",
+                    "users.username as sender",
+                    "operadors.user_id as operador"
+                )
+                .innerJoin("operadors", "notifications.operador_id", "operadors.id")
+                .innerJoin("users", "operadors.user_id", "users.id")
+                .where("notifications.user_id", user_id)
+                .orderBy("notifications.id", "desc")
                 .fetch()
 
             if (!notification) {

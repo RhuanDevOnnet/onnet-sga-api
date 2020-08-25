@@ -5,7 +5,6 @@ const { joinUser, getRoom } = use("./../app/Controllers/Ws/TicketSocketControlle
 
 io.on("connection", function (socket) {
 
-  // When join on chat ticket
   socket.on("joinTicket", ({ ticketId, userId }) => {
     if (!ticketId || !userId) {
       return;
@@ -17,12 +16,15 @@ io.on("connection", function (socket) {
       socket.join(userRoom);
   });
 
-  // Listen for chatMessages
   socket.on("chatMessages", ({ ticketId, message }) => {
     const usersRoom = getRoom(ticketId);
 
     if (usersRoom)
       io.to(usersRoom).emit("newMessage", message);
+  });
+
+  socket.on("notificate", data => {
+    io.emit("hasNotification", data);
   });
 
   socket.on('ticketChanged', ({ ticketId }) => {
