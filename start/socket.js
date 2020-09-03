@@ -27,6 +27,10 @@ io.on("connection", function (socket) {
     io.emit("hasNotification", data);
   });
 
+  socket.on("newTicket", data => {
+    io.emit("hasNewTicket", data);
+  });
+
   socket.on('ticketChanged', ({ ticketId }) => {
     const usersRoom = getRoom(ticketId);
 
