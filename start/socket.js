@@ -27,15 +27,15 @@ io.on("connection", function (socket) {
     io.emit("hasNotification", data);
   });
 
-  socket.on("newTicket", data => {
-    io.emit("hasNewTicket", data);
+  socket.on("ticketChange", () => {
+    io.emit("ticketHasChanged");
   });
 
-  socket.on('ticketChanged', ({ ticketId }) => {
+  socket.on('ticketFinished', ({ ticketId }) => {
     const usersRoom = getRoom(ticketId);
 
     if (usersRoom) {
-      io.to(usersRoom).emit('ticketHasChanged');
+      io.to(usersRoom).emit('ticketHasFinished');
 
       socket.leave(usersRoom);
     }
