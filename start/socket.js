@@ -34,8 +34,6 @@ io.on("connection", function (socket) {
   socket.on('ticketChanged', ({ ticketId }) => {
     const usersRoom = getRoom(ticketId);
 
-    console.log(usersRoom);
-
     if (usersRoom) {
       io.to(usersRoom).emit('ticketHasChanged');
 

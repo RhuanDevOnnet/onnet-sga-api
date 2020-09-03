@@ -26,6 +26,19 @@ class TicketController {
     return ticket;
   }
 
+  async countNewTickets({ request, auth, response, params, view }) {
+    const { setores } = request.body;
+
+    const tickets = await Ticket.query()
+      .where('user_id', '!=', auth.user.id)
+      .where('resolvido', false)
+      .where('operador_responsavel', null)
+      .whereIn('setor_id', setores)
+      .fetch()
+
+    return response.json(tickets)
+  }
+
   async indexClosedTickets({ request, response, params }) {
     const { order = "asc", page = 1, qtd = 5 } = request.all();
 
@@ -113,7 +126,7 @@ class TicketController {
           .status(400)
           .json({ message: "Não há nenhum registro desse ticket " });
       }
-      
+
       return response.status(200).send(ticket);
     } catch (err) {
       console.log(err);
