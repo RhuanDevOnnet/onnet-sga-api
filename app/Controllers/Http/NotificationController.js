@@ -37,9 +37,7 @@ class NotificationController {
             visited,
         } = request.body
         const data = new Date()
-        console.log(operador_id, user_id, ticket_id, protocolo, text, visited)
 
-        console.log(data)
         try {
             const newNotification = await Notification.create({
                 operador_id: operador_id,

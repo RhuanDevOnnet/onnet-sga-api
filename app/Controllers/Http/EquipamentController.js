@@ -54,7 +54,6 @@ class EquipamentController {
     const data = request.body;
     
     const equipament = await Equipament.create({ 'usuario_criacao': auth.user.username, ...data });
-    console.log(equipament);
     return equipament;
   }
 

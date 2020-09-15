@@ -35,15 +35,12 @@ class PhoneColaboradorController {
       const query = PhoneColaborattor.query()
 
       if (colaborador && !colaborador == '') {
-        console.log('colaborador')
         query.where('collaborators_id', colaborador)
       }
       if (celular && !celular == '') {
-        console.log('celular acessando')
         query.where('phones_id', celular)
       }
       if (data_inicio && data_fim && !data_fim == null && data_inicio == null) {
-        console.log(data_inicio, data_fim)
         query.whereBetween('data_comodato', [data_inicio, data_fim])
       }
 

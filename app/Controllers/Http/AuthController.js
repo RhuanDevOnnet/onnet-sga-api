@@ -102,10 +102,7 @@ class AuthController {
         .fetch()
       const user = data.toJSON()
 
-      console.log(user.length)
-
       if (user.length == 0) {
-        console.log('entro aqui')
         return response.status(403).json({ message: 'Usuario Inativo' })
       }
 

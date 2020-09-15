@@ -11,8 +11,6 @@ class AnexoFileController {
     const title = request.input("title");
     const { ticketId } = request.params;
 
-    console.log(_file);
-
     if (_file == null) {
       return response
         .status(400)
@@ -23,7 +21,6 @@ class AnexoFileController {
     try {
 
       const ticket = await Ticket.findOrFail(ticketId);
-      console.log(auth.user.username)
 
       if(!ticket){
         return response.status(400).json({ message: "Não foi encontrado nenhum ticket "});

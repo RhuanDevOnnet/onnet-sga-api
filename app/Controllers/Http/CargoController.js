@@ -17,7 +17,6 @@ class CargoController {
    */
   async index ({ request, response, view }) {
     const cargo = await Cargo.all();
-    console.log(cargo);
     return cargo;
   }
 
