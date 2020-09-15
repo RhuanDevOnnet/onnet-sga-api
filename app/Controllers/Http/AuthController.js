@@ -27,15 +27,27 @@ class AuthController {
     }
   }
 
-  async index({ request, response }) {
+  async index({ request, response, params }) {
     try {
-      const users = await User.query().with('permissao').fetch()
+      const { isOperator } = request.get();
+      const users = User.query()
+        .select(
+          'users.id',
+          'users.username',
+          'users.email',
+          'users.foto',
+          'users.ativo',
+          'users.created_at',
+          'users.updated_at',
+        )
+        .with('permissao');
 
-      if (!users) {
-        return response.json({ message: 'Não foi encontrado nenhum usuario.' })
-      }
-      return response.json(users)
-    } catch (err) {
+      if (isOperator && JSON.parse(isOperator))
+        users.innerJoin('operadors', 'users.id', 'operadors.user_id').groupBy('users.id')
+
+      return response.json(await users.fetch())
+    }
+    catch (err) {
       return response.json({ message: `Ocorreu um erro: ${err}` })
     }
   }

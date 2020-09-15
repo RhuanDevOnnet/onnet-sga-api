@@ -1,6 +1,7 @@
 "use strict";
 
 const Ticket = use("App/Models/Ticket");
+const Operador = use("App/Models/Operador");
 
 class TicketController {
   async index({ request, response, view }) {
@@ -21,7 +22,7 @@ class TicketController {
       .with("operador")
       .with("ticketStatus")
       .where("user_id", "=", auth.user.id)
-      .orderBy("id", "desc")
+      .orderBy("created_at", "desc")
       .fetch();
     return ticket;
   }
@@ -40,7 +41,7 @@ class TicketController {
   }
 
   async indexClosedTickets({ request, response, params }) {
-    const { order = "asc", page = 1, qtd = 5 } = request.all();
+    const { order = "desc", page = 1, qtd = 5 } = request.all();
 
     const ticket = await Ticket.query()
       .with("user")
@@ -48,7 +49,7 @@ class TicketController {
       .with("operador")
       .with("ticketStatus")
       .where("resolvido", true)
-      .orderBy("id", order)
+      .orderBy("created_at", order)
       .paginate(page, qtd);
 
     if (!ticket) {
@@ -63,7 +64,6 @@ class TicketController {
   async indexTicketBySector({ request, response, params }) {
     const sectorId = params.id;
 
-
     try {
       const tickets = await Ticket.query()
         .with("user")
@@ -73,7 +73,7 @@ class TicketController {
         .with("ticketStatus")
         .where("setor_id", "=", sectorId)
         .where("resolvido", false)
-        .orderBy("id", "desc")
+        .orderBy("created_at", "desc")
         .fetch();
 
       if (!tickets) {
@@ -88,6 +88,78 @@ class TicketController {
         message: "Ocorreu um erro ao tentar buscar os tickets. " + err,
       });
     }
+  }
+
+  async advancedIndex({ request, response, params }) {
+    const {
+      id,
+      assunto,
+      cliente_onnet,
+      cliente_portabilidade,
+      cpfCnpj,
+      operadora_doadora,
+      num_telefone,
+      created_at,
+      setor_id,
+      cidade_id,
+      operador_id,
+      user_id,
+      isPortability
+    } = request.body;
+
+    const tickets = Ticket.query()
+      .with('setor')
+      .with('cidade')
+      .with('user')
+      .with('operador')
+      .where('resolvido', true);
+
+    if (id)
+      return response.json(await tickets.where('id', id).fetch());
+
+    if (isPortability) {
+      tickets.where('isPortability', true)
+
+      if (cliente_onnet)
+        tickets.where('cliente_onnet', 'LIKE', `%${cliente_onnet}%`)
+
+      if (cliente_portabilidade)
+        tickets.where('cliente_portabilidade', 'LIKE', `%${cliente_portabilidade}%`)
+
+      if (cpfCnpj)
+        tickets.where('cpfCnpj', 'LIKE', `%${cpfCnpj}%`)
+
+      if (operadora_doadora)
+        tickets.where('operadora_doadora', 'LIKE', `%${operadora_doadora}%`)
+
+      if (num_telefone)
+        tickets.where('num_telefone', 'LIKE', `%${num_telefone}%`)
+    }
+
+    if (assunto)
+      tickets.where('assunto', 'LIKE', `%${assunto}%`)
+
+    if (created_at)
+      tickets.where('created_at', 'LIKE', `${created_at}%`)
+
+    if (setor_id)
+      tickets.where('setor_id', setor_id)
+
+    if (cidade_id)
+      tickets.where('cidade_id', cidade_id)
+
+    if (user_id)
+      tickets.where('user_id', user_id)
+
+    if (operador_id) {
+      const operador = await Operador.query().where('user_id', operador_id).fetch();
+
+      const operadorIds = operador.rows.map(operador => operador.id);
+
+      tickets.whereIn('operador_responsavel', operadorIds)
+    }
+
+    return response.json(await tickets.orderBy('created_at', 'desc').fetch());
   }
 
   async store({ request, auth, response }) {

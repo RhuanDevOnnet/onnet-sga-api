@@ -28,7 +28,6 @@ class UserController {
             return response.status(403).json({ message: "Acesso negado ! "});
         }
 
-        console.log(auth.user)
         try{
             const user = await User.findOrFail(id);
 

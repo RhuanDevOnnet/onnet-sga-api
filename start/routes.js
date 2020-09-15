@@ -157,6 +157,7 @@ Route.group(() => {
   Route.get('/find/bySector/:id', 'TicketController.indexTicketBySector')
   Route.get('/find/ticketInfo/:id', 'TicketController.getTicketInfo')
   Route.get('/find/closedTicket', 'TicketController.indexClosedTickets')
+  Route.post('find/advancedIndex', 'TicketController.advancedIndex')
   Route.post('/count/ticketsInSetors', 'TicketController.countNewTickets')
 })
   .prefix('ticket')
