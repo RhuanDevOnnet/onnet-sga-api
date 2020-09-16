@@ -16,15 +16,18 @@ class TicketController {
   }
 
   async indexTicketByUser({ request, auth, response, view, params }) {
-    const ticket = await Ticket.query()
+    const { page = 1, qtd = 5, resolvido } = request.all();
+    const ticket = Ticket.query()
       .with("user")
       .with("setor")
       .with("operador")
       .with("ticketStatus")
       .where("user_id", "=", auth.user.id)
-      .orderBy("created_at", "desc")
-      .fetch();
-    return ticket;
+
+      if(resolvido)
+        ticket.where('resolvido', resolvido)
+
+    return response.json(await ticket.orderBy("created_at", "desc").paginate(page, qtd));
   }
 
   async countNewTickets({ request, auth, response, params, view }) {
@@ -211,6 +214,7 @@ class TicketController {
   async showByUser({ params, request, resposne, view }) {
     const user_id = request.only(["user_id"]);
     const tickets = await Ticket.query().where("user_id", "=", user_id).fetch();
+
     return tickets;
   }
 
