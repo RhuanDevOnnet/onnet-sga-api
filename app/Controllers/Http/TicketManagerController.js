@@ -25,10 +25,16 @@ class TicketManagerController {
           .json({ message: 'Somente o usuário responsavel pode transferir o ticket' });
       }
 
+      console.log(ticket)
+      
       ticket.setor_id = sectorId
+      ticket.operador_responsavel = null;
+
       await ticket.save()
+
       return response.status(200).json(ticket)
-    } catch (err) {
+    }
+    catch (err) {
       return response.status(400).json({ message: 'Ocorreu um erro: ' + err })
     }
   }
