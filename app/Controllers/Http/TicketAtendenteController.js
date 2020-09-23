@@ -6,7 +6,7 @@ const Helpers = use('Helpers');
 
 async function handlerTicketStatus(ticketId, operatorSenderId) {
   const ticket = await Ticket.findOrFail(ticketId);
-
+  
   if (ticket.operador_responsavel) {
     if (operatorSenderId)
       await Ticket.query().where('id', ticketId).update({ ticket_status_id: 3 });
@@ -66,7 +66,7 @@ class TicketAtendenteController {
 
     const chatData = await TicketChat.create({ operador_id: _operatorId, ticket_id: ticketid, mensagem: _mensagem, imagem: imageUrl, user_id: auth.user.id });
 
-    handlerTicketStatus(ticketid, _operatorId);
+    await handlerTicketStatus(ticketid, _operatorId);
 
     return chatData;
   }
