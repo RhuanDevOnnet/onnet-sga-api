@@ -24,8 +24,8 @@ class TicketController {
       .with("ticketStatus")
       .where("user_id", "=", auth.user.id)
 
-      if(resolvido)
-        ticket.where('resolvido', resolvido)
+    if (resolvido)
+      ticket.where('resolvido', resolvido)
 
     return response.json(await ticket.orderBy("created_at", "desc").paginate(page, qtd));
   }
@@ -107,7 +107,8 @@ class TicketController {
       cidade_id,
       operador_id,
       user_id,
-      isPortability
+      isPortability,
+      sucesso
     } = request.body;
 
     const tickets = Ticket.query()
@@ -153,6 +154,9 @@ class TicketController {
 
     if (user_id)
       tickets.where('user_id', user_id)
+
+    if (sucesso)
+      tickets.where('sucesso', sucesso)
 
     if (operador_id) {
       const operador = await Operador.query().where('user_id', operador_id).fetch();

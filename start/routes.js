@@ -170,7 +170,7 @@ Route.group(() => {
   Route.put('/updateStatus/ticket', 'ChatController.changeTicketStatus')
   Route.put('/changeTicketSector/ticket', 'ChatController.changeTicketSector')
   Route.put('/initChat/ticket/:id', 'ChatController.initOperatorChat')
-  Route.get(
+  Route.put(
     '/CloseChatTicket/ticket/:ticketId',
     'ChatController.CloseChatTicket',
   )
@@ -178,6 +178,8 @@ Route.group(() => {
     '/indexChatMessages/ticket/:ticketId',
     'ChatController.LoadChatMessage',
   )
+
+  Route.put('/seen/messages', 'ChatController.updateVisualizadoMessages')
 })
   .prefix('chat')
   .middleware('auth')

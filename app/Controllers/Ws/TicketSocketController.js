@@ -6,7 +6,6 @@ function joinUser(ticketId, userId) {
   if (!users.includes(user))
     users.push(user);
 
-
   return user;
 }
 
