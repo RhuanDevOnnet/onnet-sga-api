@@ -39,8 +39,10 @@ class AuthController {
           'users.ativo',
           'users.created_at',
           'users.updated_at',
+          'users.setor_id'
         )
-        .with('permissao');
+        .with('permissao')
+        .with('setor');
 
       if (isOperator && JSON.parse(isOperator))
         users.innerJoin('operadors', 'users.id', 'operadors.user_id').groupBy('users.id')

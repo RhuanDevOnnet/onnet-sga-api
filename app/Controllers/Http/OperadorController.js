@@ -21,6 +21,16 @@ class OperadorController {
     return operadors;
   }
 
+  async indexByUserAuth({ request, auth, response }) {
+    const operadores = await Operador.query()
+      .with('setor')
+      .with('user')
+      .where('user_id', auth.user.id)
+      .fetch();
+
+    return response.json(operadores);
+  }
+
   async store({ request, response }) {
     const data = request.body;
 

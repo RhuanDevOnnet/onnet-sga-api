@@ -145,6 +145,7 @@ Route.group(() => {
   Route.resource('', 'OperadorController').apiOnly()
   Route.get('/findall/setor/:id', 'OperadorController.indexBySetor')
   Route.get('/findall/user', 'OperadorController.indexByUser')
+  Route.get('/find/user', 'OperadorController.indexByUserAuth')
 })
   .prefix('operador')
   .middleware('auth')
@@ -279,6 +280,13 @@ Route.group(() => {
   Route.resource('', 'PermissaoController').apiOnly()
 })
   .prefix('permissao')
+  .middleware('auth')
+
+//ticket_assuntos Route
+Route.group(() => {
+  Route.resource('', 'TicketAssuntoController').apiOnly()
+})
+  .prefix('ticket_assunto')
   .middleware('auth')
 
 Route.get(

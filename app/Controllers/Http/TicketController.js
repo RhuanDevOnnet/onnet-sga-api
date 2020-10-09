@@ -16,13 +16,19 @@ class TicketController {
   }
 
   async indexTicketByUser({ request, auth, response, view, params }) {
-    const { page = 1, qtd = 5, resolvido } = request.all();
+    const { page = 1, qtd = 5, resolvido, usuario_criacao } = request.all();
+
     const ticket = Ticket.query()
       .with("user")
       .with("setor")
       .with("operador")
       .with("ticketStatus")
       .where("user_id", "=", auth.user.id)
+
+
+    if (usuario_criacao)
+      ticket.where('usuario_criacao', usuario_criacao)
+
 
     if (resolvido)
       ticket.where('resolvido', resolvido)
@@ -173,7 +179,7 @@ class TicketController {
     const data = request.body;
 
     data.resolvido = false;
-    data.user_id = auth.user.id;
+    data.user_id = !data.user_id ? auth.user.id : Number(data.user_id);
 
     const ticket = await Ticket.create({
       "usuario_criacao ": auth.user.username,
