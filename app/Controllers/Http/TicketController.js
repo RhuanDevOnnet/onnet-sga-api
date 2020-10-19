@@ -198,7 +198,7 @@ class TicketController {
     try {
       const ticket = await Ticket.query()
         .with("ticketStatus")
-        .with("operador")
+        .with("operador.user")
         .with("setor")
         .with("user")
         .with("cidade")
