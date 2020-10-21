@@ -55,7 +55,7 @@ class TicketController {
     const ticket = await Ticket.query()
       .with("user")
       .with("setor")
-      .with("operador")
+      .with("operador.user")
       .with("ticketStatus")
       .where("resolvido", true)
       .orderBy("created_at", order)
@@ -108,7 +108,10 @@ class TicketController {
       cpfCnpj,
       operadora_doadora,
       num_telefone,
-      created_at,
+      created_at_begin,
+      created_at_end,
+      updated_at_begin,
+      updated_at_end,
       setor_id,
       cidade_id,
       operador_id,
@@ -121,7 +124,8 @@ class TicketController {
       .with('setor')
       .with('cidade')
       .with('user')
-      .with('operador')
+      .with('operador.user')
+      .with('ticketStatus')
       .where('resolvido', true);
 
     if (id)
@@ -149,8 +153,23 @@ class TicketController {
     if (assunto)
       tickets.where('assunto', 'LIKE', `%${assunto}%`)
 
-    if (created_at)
-      tickets.where('created_at', 'LIKE', `${created_at}%`)
+    if (created_at_begin) {
+      if (created_at_end)
+        tickets.whereBetween('created_at', [`${created_at_begin} 00:00:00`, `${created_at_end} 23:59:59`])
+      else
+        tickets.where('created_at', '>=', `${created_at_begin} 00:00:00`)
+    }
+    else if (created_at_end)
+      tickets.where('created_at', '<=', `${created_at_end} 23:59:59`)
+
+    if (updated_at_begin) {
+      if (updated_at_end)
+        tickets.whereBetween('updated_at', [`${updated_at_begin} 00:00:00`, `${updated_at_end} 23:59:59`])
+      else
+        tickets.where('updated_at', '>=', `${updated_at_begin} 00:00:00`)
+    }
+    else if (updated_at_end)
+      tickets.where('updated_at', '<=', `${updated_at_end} 23:59:59`)
 
     if (setor_id)
       tickets.where('setor_id', setor_id)
@@ -172,7 +191,7 @@ class TicketController {
       tickets.whereIn('operador_responsavel', operadorIds)
     }
 
-    return response.json(await tickets.orderBy('created_at', 'desc').fetch());
+    return response.json(await tickets.orderBy('updated_at', 'desc').fetch());
   }
 
   async store({ request, auth, response }) {
