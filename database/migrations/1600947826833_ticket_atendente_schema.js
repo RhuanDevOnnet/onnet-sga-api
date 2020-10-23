@@ -6,7 +6,8 @@ const Schema = use('Schema')
 class TicketAtendenteSchema extends Schema {
   up() {
     this.table('ticket_atendentes', (table) => {
-      table.boolean('visualizado').defaultTo(false);
+      table.boolean('visualizado')
+        .defaultTo(false);
     })
   }
 

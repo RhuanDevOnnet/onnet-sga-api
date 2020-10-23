@@ -6,9 +6,9 @@ class NotificationController {
     async index({ request, response, view }) {
         try {
             const notifications = await Notification.query()
-                .with('ticket')
-                .with('user')
-                .with('operador')
+                .with('ticket.operador')
+                .with('from_user')
+                .with('to_user')
                 .fetch()
 
             if (!notifications) {
@@ -27,26 +27,51 @@ class NotificationController {
         }
     }
 
+    async indexByUser({ request, response, view, params }) {
+        const { to_user_id } = params
+
+        try {
+            const notification = await Notification.query()
+                .with('ticket.operador')
+                .with('from_user')
+                .with('to_user')
+                .where("to_user_id", to_user_id)
+                .where('visited', false)
+                .orderBy("created_at", "desc")
+                .fetch()
+
+            if (!notification) {
+                return response
+                    .status(400)
+                    .json({
+                        message: 'Não foi encontrado nenhuma notificação.',
+                    })
+            }
+
+            return response.status(200).json(notification)
+        } catch (err) {
+            return response
+                .status(400)
+                .json({ message: 'Ocorreu um erro: ', err: err })
+        }
+    }
+
     async store({ request, response }) {
         const {
-            operador_id,
-            user_id,
             ticket_id,
-            protocolo,
+            to_user_id,
+            from_user_id,
             text,
-            visited,
+            visited
         } = request.body
-        const data = new Date()
 
         try {
             const newNotification = await Notification.create({
-                operador_id: operador_id,
-                user_id: user_id,
-                ticket_id: ticket_id,
-                protocolo: protocolo,
-                text: text,
-                data: data,
-                visited: visited,
+                ticket_id,
+                to_user_id,
+                from_user_id,
+                text,
+                visited,
             })
 
             return response.status(200).json(newNotification)
@@ -79,7 +104,7 @@ class NotificationController {
         }
     }
 
-    async disableNotification({ request, response, params }) {
+    async setVisited({ request, response, params }) {
         const { notificationId } = params
 
         try {
@@ -92,8 +117,10 @@ class NotificationController {
                 })
             }
 
-            notification.visited = true
-            await notification.save()
+            notification.visited = true;
+
+            await notification.save();
+
             return response
                 .status(200)
                 .json({ message: 'Notificação visitada' })
@@ -101,6 +128,27 @@ class NotificationController {
             return response
                 .status(400)
                 .json({ message: 'ocorre um erro: ', err: err })
+        }
+    }
+
+    async setAllVisited({ request, response, params }) {
+        const { userId } = params;
+        const { ticket_id } = request.get() || null;
+
+        try {
+            const notification = Notification.query()
+                .where('to_user_id', userId)
+                .where('visited', false)
+
+            if (ticket_id)
+                notification.where('ticket_id', ticket_id)
+
+            const visiteds = await notification.update({ visited: true });
+
+            return response.json(visiteds);
+        }
+        catch (err) {
+            return response.status(400).json({ message: 'ocorre um erro: ', err: err })
         }
     }
 
@@ -112,37 +160,16 @@ class NotificationController {
 
             if (!notification) {
                 return response.status(400).json({
-                    message:
-                        'Não foi encontrado nenhuma notificação com esse Id ',
+                    message: 'Não foi encontrado nenhuma notificação com esse Id '
                 })
             }
 
-            await notification.delete()
-            return response
-                .status(200)
-                .json({ message: 'Notificação excluida com sucesso ' })
-        } catch (err) {
-            return response
-                .status(200)
-                .json({ message: 'Ocorreu um erro: ' + err })
+            await notification.delete();
+
+            return response.status(200).json({ message: 'Notificação excluida com sucesso ' })
         }
-    }
-
-    async destroyAll({ request, response, params }) {
-        const { userId } = params
-
-        try {
-            const deletedNotifications = await Notification.query()
-                .where('user_id', userId)
-                .delete()
-
-            return response
-                .status(200)
-                .json({ message: 'Todas notificações foram limpadas ' })
-        } catch (err) {
-            return response
-                .status(400)
-                .json({ message: 'Ocorreu um erro: ', err: err })
+        catch (err) {
+            return response.status(200).json({ message: 'Ocorreu um erro: ' + err })
         }
     }
 }

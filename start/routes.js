@@ -262,15 +262,15 @@ Route.group(() => {
 
 Route.group(() => {
   Route.resource('', 'NotificationController')
+  Route.get('/search/:to_user_id', 'NotificationController.indexByUser')
   Route.get(
-    '/search/:user_id',
-    'NotificationSearchController.searchNotificationByUser',
+    '/setVisited/:notificationId',
+    'NotificationController.setVisited',
   )
   Route.get(
-    '/disableNotification/:notificationId',
-    'NotificationController.disableNotification',
+    '/setAllVisited/:userId',
+    'NotificationController.setAllVisited',
   )
-  Route.delete('/deleteAll/:userId', 'NotificationController.destroyAll')
 })
   .prefix('notification')
   .middleware('auth')

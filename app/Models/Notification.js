@@ -5,16 +5,16 @@ const Model = use('Model')
 
 class Notification extends Model {
 
-    operador(){
-        return this.belongsTo('App/Models/Operador');
-    }
-
-    ticket(){
+    ticket() {
         return this.belongsTo('App/Models/Ticket');
     }
 
-    user(){
-        return this.belongsTo('App/Models/User');
+    from_user() {
+        return this.belongsTo('App/Models/User', 'from_user_id', 'id');
+    }
+
+    to_user() {
+        return this.belongsTo('App/Models/User', 'to_user_id', 'id');
     }
 }
 
